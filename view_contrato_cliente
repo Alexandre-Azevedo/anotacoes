@@ -1,0 +1,43 @@
+/*CREATE VIEW view_contrato_cliente AS*/
+SELECT DISTINCT
+    row_number() over(order by public.tb_empresa.nome) as id,
+	public.tb_tipoempresa.id as tipo_empresa,/*id, nome from tb_tipoempresa*/
+	public.tb_empresa.id as cliente,/*id, (select nome from tb_empresa where id=tb_cliente.nome) from tb_cliente*/
+	public.tb_contratocliente.numero as numero_contrato_cliente,/*size='20'*/
+	public.tb_contratocliente.dispensa_inexigibilidade as dispensa_inexigibilidade,/*size='60'*/
+	objeto_cliente,
+	valor_servico,
+	modalidade_cobranca,
+	public.tb_tipodoccontrato.nome as tipo_contrato,
+	public.tb_doccontratocliente.data_publicacao as data_publicacao,
+	public.tb_doccontratocliente.data_inicio_vigencia as data_inicio_vigencia,
+	public.tb_doccontratocliente.data_final_vigencia as data_final_vigencia,
+	abs(public.tb_doccontratocliente.data_inicio_vigencia - public.tb_doccontratocliente.data_final_vigencia) as vencimento,
+	public.tb_contratocliente.status as status,
+	public.tb_doccontratocliente.informacao as informacao,
+	public.tb_pessoa.nome as gestor,
+	public.tb_contratocliente.observacao as observacao
+
+FROM
+	public.tb_contratocliente
+
+INNER JOIN 
+	public.tb_cliente ON  public.tb_contratocliente.id_cliente = public.tb_cliente.id
+INNER JOIN 
+	public.tb_empresa ON public.tb_cliente.nome = public.tb_empresa.id
+INNER JOIN 
+	public.tb_tipoempresa ON public.tb_empresa.id_tipoempresa = public.tb_tipoempresa.id
+
+INNER JOIN
+	public.tb_doccontratocliente ON public.tb_contratocliente.id = public.tb_doccontratocliente.id_contratocliente
+
+
+INNER JOIN 
+	public.tb_contratofornecedor ON  public.tb_contratocliente.id_contratofornecedor = public.tb_contratofornecedor.id
+INNER JOIN 
+	public.tb_gestor ON public.tb_gestor.id = any(public.tb_contratofornecedor.id_gestores) 
+INNER JOIN
+	public.tb_pessoa ON public.tb_gestor.id_pessoa = public.tb_pessoa.id
+
+INNER JOIN
+	public.tb_tipodoccontrato ON public.tb_doccontratocliente.id_tipodoccontrato = public.tb_tipodoccontrato.id;
