@@ -1,0 +1,70 @@
+/*CREATE VIEW view_contrato_fornecedor AS*/
+SELECT DISTINCT
+    row_number() over(order by mapp) as id,
+	public.tb_contratofornecedor.id as id_contrato_fornecedor,
+	mapp,
+	public.tb_empresa.nome as fornecedor,
+	public.tb_contratofornecedor.numero as numero_contrato_fornecedor,
+	sacc,
+	public.tb_tipolicitacao.nome as licitacao,
+	public.tb_classificacaogeral.nome as classificacao_geral,
+	objeto_fornecedor,
+	public.tb_doccontratofornecedor.valor_global as val_global,
+	public.tb_doccontratofornecedor.valor_mes as val_mes,
+	public.tb_tipodoccontrato.nome as documento,
+	public.tb_doccontratofornecedor.data_publicacao as dt_publi,
+	public.tb_doccontratofornecedor.data_inicio_vigencia as dt_ini_vi,
+	public.tb_doccontratofornecedor.data_final_vigencia as dt_fin_vi,
+	abs(public.tb_doccontratofornecedor.data_inicio_vigencia - public.tb_doccontratofornecedor.data_final_vigencia) as vencimento,
+	public.tb_contratofornecedor.status as status,
+	ciclo_vigencia,
+	fg_renovavel,
+	public.tb_doccontratofornecedor.informacao as informa,
+	public.tb_pessoa.nome as gestor,
+	public.tb_diretoria.nome as diretoria,
+	public.tb_contratofornecedor.observacao as obs,
+	public.tb_seguradora.nome as seguradora,
+	public.tb_segurogarantia.numero as seguro,
+	public.tb_segurogarantia.valor as val_seg,
+	public.tb_segurogarantia.data_inicio_garantia as dt_ini_seg,
+	public.tb_segurogarantia.data_final_garantia as dt_final_seg,
+	public.tb_fornecedor.email as email_fornecedor
+
+
+FROM
+	public.tb_contratofornecedor
+
+INNER JOIN 
+	public.tb_fornecedor ON  public.tb_contratofornecedor.id_fornecedor = public.tb_fornecedor.id
+INNER JOIN 
+	public.tb_empresa ON public.tb_fornecedor.nome = public.tb_empresa.id
+
+INNER JOIN 
+	public.tb_licitacao ON public.tb_contratofornecedor.id_licitacao = public.tb_licitacao.id
+INNER JOIN
+	public.tb_tipolicitacao ON public.tb_licitacao.id_tipolicitacao = public.tb_tipolicitacao.id
+
+INNER JOIN
+	public.tb_classificacaogeral ON public.tb_contratofornecedor.id_classificacaogeral = public.tb_classificacaogeral.id
+
+
+INNER JOIN
+	public.tb_doccontratofornecedor ON public.tb_contratofornecedor.id = public.tb_doccontratofornecedor.id_contratofornecedor
+
+
+INNER JOIN 
+	public.tb_gestor ON  public.tb_gestor.id = any(public.tb_contratofornecedor.id_gestores) 
+INNER JOIN
+	public.tb_pessoa ON public.tb_gestor.id_pessoa = public.tb_pessoa.id
+INNER JOIN
+	public.tb_diretoria ON public.tb_gestor.id_diretoria = public.tb_diretoria.id
+
+
+INNER JOIN
+	public.tb_segurogarantia ON public.tb_doccontratofornecedor.id_segurogarantia = public.tb_segurogarantia.id
+INNER JOIN
+	public.tb_seguradora ON public.tb_segurogarantia.id_seguradora = public.tb_seguradora.id
+
+INNER JOIN
+	public.tb_tipodoccontrato ON public.tb_doccontratofornecedor.id_tipodoccontrato = public.tb_tipodoccontrato.id; 
+ 
